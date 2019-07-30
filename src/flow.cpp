@@ -60,6 +60,9 @@ std::string flow::filename(uint32_t connection_count, bool is_pcap)
         ss << '/';
     }
 
+    std::streamsize oldwidth = ss.width();
+    char oldfill = ss.fill();
+
     for(unsigned int i=0;i<filename_template.size();i++){
 	switch(filename_template.at(i)){
 	default:
@@ -122,6 +125,12 @@ std::string flow::filename(uint32_t connection_count, bool is_pcap)
 	      }
 	    case 't': // Unix time_t
 		ss << tstart.tv_sec;
+    ss << ".";
+    ss.width(6);
+    ss.fill('0');
+    ss << tstart.tv_usec;
+    ss.width(oldwidth);
+    ss.fill(oldfill);
 		break;
 	    case 'V': // '--' if VLAN is present
 		if(vlan!=be13::packet_info::NO_VLAN) ss << "--";
@@ -156,7 +165,7 @@ std::string flow::filename(uint32_t connection_count, bool is_pcap)
 }
 
 /**
- * Find an unused filename for the flow and optionally open it. 
+ * Find an unused filename for the flow and optionally open it.
  * This is called from tcpip::open_file().
  */
 
